@@ -1,0 +1,1 @@
+# pgbouncer-rhel6
