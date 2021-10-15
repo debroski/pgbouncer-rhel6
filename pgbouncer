@@ -1,0 +1,78 @@
+#!/bin/bash
+#chkconfig: 345 99 01
+# description: Script created for pgbouncer startup in ambitious AWS with AMI Linux
+#######################################################################
+#
+# Author: Donizete Debroski / donizete.debroski@magazord.com.br
+# Data: 14/10/2021
+# Version: 1.0
+#######################################################################
+# Source function library.
+. /etc/init.d/functions
+
+#
+PROG=pgbouncer
+USERNAME=postgres
+PIDFILE=/var/run/pgbouncer/pgbouncer.pid
+exec=/usr/local/bin/pgbouncer
+OPTS="-d /etc/pgbouncer/pgbouncer.ini"
+STATUS=$(ps aux | grep $PROG | grep $USERNAME | awk '{print $2}')
+
+
+#----------------------Start Pgbouncer----------------------------
+start() {
+  # code to start app comes here
+  if test -z $STATUS; then
+    echo "Starting $PROG..."
+    daemon $PROG -v $OPTS -u $USERNAME 2>/dev/null
+  else
+    echo "The $PROG (pid $STATUS) is already running..."
+  fi
+}
+
+#----------------------Stop Pgbouncer----------------------------
+
+stop() {
+  # code to stop app comes here
+  echo "Stopping $PROG..."
+  kill -15 $STATUS 2>/dev/null
+}
+
+#----------------------Status Pgbouncer----------------------------
+status() {
+  # code to check status of app comes here
+  if test -z $STATUS; then
+    echo "The $PROG is stopping..."
+  else
+    echo "The $PROG (pid $STATUS) is running..."
+  fi
+
+
+}
+rhstatus() {
+        status -p "/var/run/pgbouncer/pgbouncer.pid" -l pgbouncer /usr/local/bin/pgbouncer
+}
+
+case "$1" in
+start)
+  start
+  ;;
+stop)
+  stop
+  ;;
+force-stop)
+  force-stop
+  ;;
+restart)
+  stop
+  start
+  ;;
+status)
+  status
+  ;;
+*)
+  echo "Usage: $0 {start|stop|force-stop|status|restart}"
+  ;;
+esac
+
+exit 0
